@@ -288,6 +288,8 @@ Vous pouvez aussi utiliser des captures Wireshark ou des fichiers snort.log.xxxx
 
 **Reponse :**  
 
+Les preprocesseurs sont des modules qui permettent de traiter les paquets avant qu’ils soient passés dans les règles. 
+
 ---
 
 **Question 2: Pourquoi êtes vous confronté au WARNING suivant `"No preprocessors configured for policy 0"` lorsque vous exécutez la commande `snort` avec un fichier de règles ou de configuration "home-made" ?**
@@ -295,6 +297,8 @@ Vous pouvez aussi utiliser des captures Wireshark ou des fichiers snort.log.xxxx
 ---
 
 **Reponse :**  
+
+Cela signifie que aucun preprocesseur snort n’est activé. 
 
 ---
 
@@ -312,6 +316,8 @@ alert tcp any any -> any any (msg:"Mon nom!"; content:"Rubinstein"; sid:4000015;
 
 **Reponse :**  
 
+Cela va générer une alerte avec comme message “Mon nom!” pour tous les paquets contenant la string “Rubinstein”. Les variables sid et rev permettent d’identifier la règle. 
+
 ---
 
 Utiliser un éditeur et créer un fichier `myrules.rules` sur votre répertoire home. Rajouter une règle comme celle montrée avant mais avec votre nom ou un mot clé de votre préférence. Lancer snort avec la commande suivante :
@@ -326,6 +332,10 @@ sudo snort -c myrules.rules -i eth0
 
 **Reponse :**  
 
+On voit que la chaîne de règle est initialisée, snort nous indique qu’il y a une règle de détection. Il y un tableau avec les protocoles nous indiquant que tous les paquets tcp passeront au travers des règles. Il y a également d’autres messages d’initialisation. Une fois que le programme est lancé nous voyons le message : WARNING: No preprocessors configured for policy 0.
+
+![question4](images/question4.png)
+
 ---
 
 Aller à un site web contenant dans son text votre nom ou votre mot clé que vous avez choisi (il faudra chercher un peu pour trouver un site en http...).
@@ -335,6 +345,8 @@ Aller à un site web contenant dans son text votre nom ou votre mot clé que vou
 ---
 
 **Reponse :**  
+
+Nous ne voyons pas de changement dans le terminal. 
 
 ---
 
@@ -346,6 +358,16 @@ Arrêter Snort avec `CTRL-C`.
 
 **Reponse :**  
 
+Snort nous indique : 
+
+Le nombre de paquet reçu, analysé, rejeté, filtré, en suspens, injecté. 
+
+Le nombre de paquet de chaque protocole ayant transité par le réseau. 
+
+Le nombre de paquets ayant déclenché une règle et les actions effectuées. 
+
+![question6](images/question6.png)
+
 ---
 
 
@@ -356,6 +378,10 @@ Aller au répertoire /var/log/snort. Ouvrir le fichier `alert`. Vérifier qu'il 
 ---
 
 **Reponse :**  
+
+Nous pouvons voir les variables sid et rev de la règle déclenchée. Nous voyons le message de l’alerte, la priorité, la date et l’heure à laquelle la règle a été déclenchée. Nous voyons également les adresse/port de source et destination, le protocole utilisé ainsi que des information sur le paquet. 
+
+![question7](images/question7.png)
 
 ---
 
@@ -372,6 +398,14 @@ Ecrire une règle qui journalise (sans alerter) un message à chaque fois que Wi
 
 **Reponse :**  
 
+`log tcp [2620:0:862:ed1a::1] any <> [2a02:120b:2c0a:240:dbb1:f0b7:e28e:306b] any (sid:4000016; rev:1;)` 
+
+Les paquet envoyés à wikipedia ainsi que les paquets reçu de wikipedia sont inscrit dans les logs. Ils sont stocké dans le répértoire /var/log/snor et on peut les consulter à l’aide de la commande `snort -r snort.log.xxx`
+
+Les logs indiques les adresses source et destination ainsi que des informations sur le paquet. 
+
+![question8_2](/home/gaetan/ownCloud/HEIG-VD/Semestre4/SRX/Labos/Lab03/Teaching-HEIGVD-SRX-2020-Labo-IDS/images/question8_2.png)
+
 ---
 
 --
@@ -386,6 +420,8 @@ Ecrire une règle qui alerte à chaque fois que votre système reçoit un ping d
 
 **Reponse :**  
 
+  `alert icmp any any -> 192.168.1.108 any (itype:8; msg:"someone pinged you !"; sid:4000017; rev:1;)`
+
 ---
 
 
@@ -394,6 +430,8 @@ Ecrire une règle qui alerte à chaque fois que votre système reçoit un ping d
 ---
 
 **Reponse :**  
+
+À l’aide du paramètre itype:8 qui correspond au echo request 
 
 ---
 
@@ -404,6 +442,10 @@ Ecrire une règle qui alerte à chaque fois que votre système reçoit un ping d
 
 **Reponse :**  
 
+Cela a été journalisé dans le répértoire /var/log/snort, dans le fichier snort.log.1585591947
+
+![question11](images/question11.png)
+
 ---
 
 
@@ -412,6 +454,10 @@ Ecrire une règle qui alerte à chaque fois que votre système reçoit un ping d
 ---
 
 **Reponse :**  
+
+Les adresses source et destination ainsi que des informations sur le paquet. 
+
+![question12](images/question12.png)
 
 ---
 
@@ -426,6 +472,8 @@ Modifier votre règle pour que les pings soient détectés dans les deux sens.
 ---
 
 **Reponse :**  
+
+En remplaçant la flèche ‘->’ par ‘<>’ afin que la règle s’applique dans les deux sens. 
 
 ---
 
@@ -442,6 +490,10 @@ Essayer d'écrire une règle qui Alerte qu'une tentative de session SSH a été 
 
 **Reponse :**  
 
+Cette règle envoie une alerte pour chaque paquet envoyé sur le port 22, contenant la chaîne SSH.  
+
+`alert tcp any any -> any 22 (content:"SSH"; sid:4000018; rev:1)`
+
 ---
 
 
@@ -450,6 +502,8 @@ Essayer d'écrire une règle qui Alerte qu'une tentative de session SSH a été 
 ---
 
 **Reponse :**  
+
+![question15](images/question15.png)
 
 ---
 
