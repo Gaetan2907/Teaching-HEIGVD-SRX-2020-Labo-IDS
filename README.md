@@ -288,6 +288,8 @@ Vous pouvez aussi utiliser des captures Wireshark ou des fichiers snort.log.xxxx
 
 **Reponse :**  
 
+Des modules qui aident à l’analyse et au traîtement des paquets. Ces modules sont utilisés avant que les règles de Snort ne soient prises en compte par Snort.
+
 ---
 
 **Question 2: Pourquoi êtes vous confronté au WARNING suivant `"No preprocessors configured for policy 0"` lorsque vous exécutez la commande `snort` avec un fichier de règles ou de configuration "home-made" ?**
@@ -295,6 +297,8 @@ Vous pouvez aussi utiliser des captures Wireshark ou des fichiers snort.log.xxxx
 ---
 
 **Reponse :**  
+
+Il n’y a pas de preprocessor qui est utilisé par snort.
 
 ---
 
@@ -312,6 +316,8 @@ alert tcp any any -> any any (msg:"Mon nom!"; content:"Rubinstein"; sid:4000015;
 
 **Reponse :**  
 
+La règle implique qu’une alerte est lancée (`alert`) avec le message “Mon nom!” (`msg:`) lorsqu’un paquet du protocole TCP (`tcp`) provenant de toute adresse IP et tout port source (`any any`) en direction (`->`) de toute adresse et tout port (`any any`) contient la chaîne de caractères “Rubinstein” (`content:`). Le reste (`sid`, `rev`) permet simplement d’identifier cette règle auprès d’autres règles établies.
+
 ---
 
 Utiliser un éditeur et créer un fichier `myrules.rules` sur votre répertoire home. Rajouter une règle comme celle montrée avant mais avec votre nom ou un mot clé de votre préférence. Lancer snort avec la commande suivante :
@@ -326,6 +332,18 @@ sudo snort -c myrules.rules -i eth0
 
 **Reponse :**  
 
+
+
+![](./images/img1.png)
+
+![](./images/img2.png)
+
+On voit qu’il indique que snort s’est lancé en mode IDS, qu’il s’initialise (Plugins, preprocesseurs, chargement du fichier de règles passé en paramètre, etc...). On voit que Snort a correctement trouvé notre règle de détection de paquets. On voit ensuite un tableau répertoriant le nombre de règles détectant des paquets du protocole TCP de source et de direction quelconque. 
+
+D’autres paramètres et informations sont affichées comme le taux de filtrage de paquets, l’ordre selon lequel les règles sont appliquées, etc..
+
+Finalement, on voit le fameux *Warning: No processors configured for policy 0*.
+
 ---
 
 Aller à un site web contenant dans son text votre nom ou votre mot clé que vous avez choisi (il faudra chercher un peu pour trouver un site en http...).
@@ -335,6 +353,8 @@ Aller à un site web contenant dans son text votre nom ou votre mot clé que vou
 ---
 
 **Reponse :**  
+
+Rien de différent par rapport à avant.
 
 ---
 
@@ -346,6 +366,22 @@ Arrêter Snort avec `CTRL-C`.
 
 **Reponse :**  
 
+![](./images/img3.png)
+
+Ici, on voit le nombre de paquets qui ont été analysés, drop, filtré, outstanding (des paquets qui sont mis en mémoire en attente d’un traitement), et injecté.
+
+
+
+Entre les deux images, il y avait une grande liste de protocole, indiquant le nombre de paquets pour chaque type de protocole qui a transité sur le réseau.
+
+
+
+![](./images/img4.png)
+
+Ici, on a le type de règles qui a été déclenchées par les règles soumises à Snort et ce que Snort en a fait (majoritairement, autorisés à passer).
+
+
+
 ---
 
 
@@ -356,6 +392,12 @@ Aller au répertoire /var/log/snort. Ouvrir le fichier `alert`. Vérifier qu'il 
 ---
 
 **Reponse :**  
+
+![](./images/img5.png)
+
+En première ligne, on voit l’ID de la règle (`sid`, `rev`) avec le message de l’alerte. On voit ensuite la priorité de la règle, la date à laquelle l’alerte a été donnée, l’adresse IP source et l’adresse IP destination chacune avec le port utilisé respectif. On note aussi le type de paquets ayant transité. 
+
+Des informations sur le paquets (son type, sa longueur, etc...) sont données.
 
 ---
 
@@ -569,6 +611,5 @@ Modifier le fichier `myrules.rules` pour que snort utiliser le `Frag3 Preprocess
 **Reponse :**  
 
 ---
-
 
 <sub>This guide draws heavily on http://cs.mvnu.edu/twiki/bin/view/Main/CisLab82014</sub>
