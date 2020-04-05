@@ -414,9 +414,19 @@ Ecrire une règle qui journalise (sans alerter) un message à chaque fois que Wi
 
 **Reponse :**  
 
+`log tcp 192.168.0.13 any <> 91.198.174.192 any (; msg:"Connection to Wikipedia detected!"; sid:6000000; rev:1)`
+
+
+
+Il a été journalisé dans un fichier de log (snort.log.XXXXX). Celui-ci se trouve au même endroit que les alertes `/var/log/snort`. On peut y voir les adresses IP, des informations sur les paquets transmis, le protocole de transport utilisé, etc...
+
+
+
+![](./images/img6.png)
+
 ---
 
---
+
 
 ### Detecter un ping d'un autre système
 
@@ -428,14 +438,17 @@ Ecrire une règle qui alerte à chaque fois que votre système reçoit un ping d
 
 **Reponse :**  
 
----
+`alert icmp any any -> 192.168.0.13 any (msg:"Ping detected!"; itype:8; sid:6000001; rev:1;)`
 
+---
 
 **Question 10: Comment avez-vous fait pour que ça identifie seulement les pings entrants ?**
 
 ---
 
 **Reponse :**  
+
+En précisant le type de message du ping, le 8 correspondant à un echo request, le message envoyé par notre machine et permettant d’exclure les echo reply.
 
 ---
 
@@ -446,6 +459,8 @@ Ecrire une règle qui alerte à chaque fois que votre système reçoit un ping d
 
 **Reponse :**  
 
+Dans un fichier snort.log.XXXXX qui se trouve au même endroit qu’évoqué précédemment. 
+
 ---
 
 
@@ -454,6 +469,10 @@ Ecrire une règle qui alerte à chaque fois que votre système reçoit un ping d
 ---
 
 **Reponse :**  
+
+
+
+![](./images/img7.png)
 
 ---
 
@@ -468,6 +487,8 @@ Modifier votre règle pour que les pings soient détectés dans les deux sens.
 ---
 
 **Reponse :**  
+
+Il suffit de simple de modifier l’opérateur de direction `->` en `<>`.
 
 ---
 
@@ -484,6 +505,8 @@ Essayer d'écrire une règle qui Alerte qu'une tentative de session SSH a été 
 
 **Reponse :**  
 
+`alert tcp any any -> 192.168.0.13 22 (msg:"SSH connection detected!";sid:6000002;rev:1;)`
+
 ---
 
 
@@ -492,6 +515,8 @@ Essayer d'écrire une règle qui Alerte qu'une tentative de session SSH a été 
 ---
 
 **Reponse :**  
+
+![](./images/img8.png)
 
 ---
 
@@ -507,6 +532,8 @@ Lancer Wireshark et faire une capture du trafic sur l'interface connectée au br
 
 **Reponse :**  
 
+`sudo snort -r fichier_capture.pcap`
+
 ---
 
 Utiliser l'option correcte de Snort pour analyser le fichier de capture Wireshark.
@@ -517,6 +544,8 @@ Utiliser l'option correcte de Snort pour analyser le fichier de capture Wireshar
 
 **Reponse :**  
 
+Il effectue le même affichage que si c’était des paquets qu’il analyse en temps réel. Selon la page man et le manuel de snort, celui-ci lit et analyse les paquets comme s’ils étaient en-dehors du réseau ce qui permet de tester ou de débugger Snort. 
+
 ---
 
 **Question 18: Est-ce que des alertes sont aussi enregistrées dans le fichier d'alertes?**
@@ -524,6 +553,8 @@ Utiliser l'option correcte de Snort pour analyser le fichier de capture Wireshar
 ---
 
 **Reponse :**  
+
+Oui, elles y sont aussi ajoutées. 
 
 ---
 
@@ -539,6 +570,12 @@ Faire des recherches à propos des outils `fragroute` et `fragtest`.
 
 **Reponse :**  
 
+Ce sont deux outils de Pentesting. 
+
+**Fragroute:** Il permet d’intercepter le trafic en destination d’un hôte afin de pouvoir les analyser, les récrire ou le fragmenter.
+
+**Fragtest:** Permet le réassemblage de des paquets et de tester de ce réassemblage. 
+
 ---
 
 
@@ -548,8 +585,9 @@ Faire des recherches à propos des outils `fragroute` et `fragtest`.
 
 **Reponse :**  
 
----
+Fragmentation des paquets afin de dissimuler un code malveillant (un payload par exemple). Étant fragmentés, les paquets ne paraissent plus malveillant aux yeux de l’IDS (détection par signature ou détection de code malveillant) ce qui permet de outrepasser sa sécurité.
 
+---
 
 **Question 22: Qu'est-ce que le `Frag3 Preprocessor` ? A quoi ça sert et comment ça fonctionne ?**
 
@@ -557,11 +595,14 @@ Faire des recherches à propos des outils `fragroute` et `fragtest`.
 
 **Reponse :**  
 
+C’est un module de Snort qui permet de contrer la fragmentation de paquets par un attaquant.
+
+Le module cherche quels sont les hôtes qui se trouvent sur le réseau afin d’élaborer une stratégie sur comment appréhender des paquets fragmentés (les laisser passer, les drop, etc...).
+
 ---
 
 
 Reprendre l'exercice de la partie [Trouver votre nom](#trouver-votre-nom-). Essayer d'offusquer la détection avec `fragroute`.
-
 
 **Question 23: Quel est le résultat de votre tentative ?**
 
@@ -590,6 +631,10 @@ Modifier le fichier `myrules.rules` pour que snort utiliser le `Frag3 Preprocess
 
 **Reponse :**  
 
+Snort par défaut intercepte les paquets chiffrés. Ce preprocessor permet d’établir s’il faut et quand il faut que Snort ignore ces paquets afin de réduire le nombre de faux-positifs ainsi qu’améliorer les performances. 
+
+En regardant le lien https://snort.org/faq/readme-ssl, on note qu’il est par exemple possible de limiter l’analyse des paquets HTTPS au handshake de celui-ci.
+
 ---
 
 
@@ -598,6 +643,8 @@ Modifier le fichier `myrules.rules` pour que snort utiliser le `Frag3 Preprocess
 ---
 
 **Reponse :**  
+
+Permet de détecter et filtrer des chaînes de caractères spécifiques (adresse email, numéro de cartes de crédit, etc...) à l’aide de l’utilisation de regex.
 
 ---
 
@@ -610,6 +657,10 @@ Modifier le fichier `myrules.rules` pour que snort utiliser le `Frag3 Preprocess
 
 **Reponse :**  
 
+Snort est un puissant outil d’analyse, sans compter le nombre de modules qui permettent une analyse accrue et plus précise. Les règles sont faciles à prendre en main et faciles à tester.
+
+Un problème que l’on peut lui trouver est qu’il ne puisse pas analyser les paquets chiffrés, ce qui peut se révéler problématique, à l’heure où le nombre de sites internet en HTTPS est important. 
+
 ---
 
-<sub>This guide draws heavily on http://cs.mvnu.edu/twiki/bin/view/Main/CisLab82014</sub>
+<sub>This guide draws heavily on http://cs.mvnu.edu/twiki/bin/view/Main/CisLab82014</sub>srx
