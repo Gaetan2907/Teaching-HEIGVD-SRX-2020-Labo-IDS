@@ -288,7 +288,7 @@ Vous pouvez aussi utiliser des captures Wireshark ou des fichiers snort.log.xxxx
 
 **Reponse :**  
 
-Des modules qui aident à l’analyse et au traîtement des paquets. Ces modules sont utilisés avant que les règles de Snort ne soient prises en compte par Snort.
+Des modules qui aident à l’analyse et au traîtement des paquets. Ces modules sont utilisés avant que les règles de Snort ne soient prises en compte.
 
 ---
 
@@ -414,11 +414,13 @@ Ecrire une règle qui journalise (sans alerter) un message à chaque fois que Wi
 
 **Reponse :**  
 
-`log tcp 192.168.0.13 any <> 91.198.174.192 any (; msg:"Connection to Wikipedia detected!"; sid:6000000; rev:1)`
+`log tcp 192.168.0.13 any <> 91.198.174.192 any (;sid:6000000; rev:1)`
 
 
 
 Il a été journalisé dans un fichier de log (snort.log.XXXXX). Celui-ci se trouve au même endroit que les alertes `/var/log/snort`. On peut y voir les adresses IP, des informations sur les paquets transmis, le protocole de transport utilisé, etc...
+
+`snort -r snort.log.XXXXX`
 
 
 
@@ -473,6 +475,10 @@ Dans un fichier snort.log.XXXXX qui se trouve au même endroit qu’évoqué pr�
 
 
 ![](./images/img7.png)
+
+
+
+Les adresses source et destination ainsi que des informations sur le paquet.
 
 ---
 
@@ -544,7 +550,7 @@ Utiliser l'option correcte de Snort pour analyser le fichier de capture Wireshar
 
 **Reponse :**  
 
-Il effectue le même affichage que si c’était des paquets qu’il analyse en temps réel. Selon la page man et le manuel de snort, celui-ci lit et analyse les paquets comme s’ils étaient en-dehors du réseau ce qui permet de tester ou de débugger Snort. 
+Il effectue le même affichage que si c’était des paquets qu’il analyse en temps réel (mode sniffer). Selon la page man et le manuel de snort, celui-ci lit et analyse les paquets comme s’ils étaient en-dehors du réseau ce qui permet de tester ou de débugger Snort. 
 
 ---
 
@@ -554,7 +560,7 @@ Il effectue le même affichage que si c’était des paquets qu’il analyse en 
 
 **Reponse :**  
 
-Oui, elles y sont aussi ajoutées. 
+Non pas ajoutées.
 
 ---
 
@@ -572,9 +578,9 @@ Faire des recherches à propos des outils `fragroute` et `fragtest`.
 
 Ce sont deux outils de Pentesting. 
 
-**Fragroute:** Il permet d’intercepter le trafic en destination d’un hôte afin de pouvoir les analyser, les récrire ou le fragmenter.
+**Fragroute:** Il permet d’intercepter le trafic en destination d’un hôte afin de pouvoir les analyser, les récrire ou le fragmenter. On peut l’utiliser pour passer à travers les règles définies par snort.
 
-**Fragtest:** Permet le réassemblage de des paquets et de tester de ce réassemblage. 
+**Fragtest:** Envoie des paquets framentées à un hôte afin de tester sa capacité/manière de les réassembler. 
 
 ---
 
@@ -597,7 +603,7 @@ Fragmentation des paquets afin de dissimuler un code malveillant (un payload par
 
 C’est un module de Snort qui permet de contrer la fragmentation de paquets par un attaquant.
 
-Le module cherche quels sont les hôtes qui se trouvent sur le réseau afin d’élaborer une stratégie sur comment appréhender des paquets fragmentés (les laisser passer, les drop, etc...).
+Le module frag3 fonctionne avec un modèle d’analyse “targed-based”, l’idée est de donner des information au module sur l’hôte afin d’éviter des attaques qui sont basée sur des informations de comment l’IDS réagit fasse à une IP précise.
 
 ---
 
@@ -610,6 +616,24 @@ Reprendre l'exercice de la partie [Trouver votre nom](#trouver-votre-nom-). Essa
 
 **Reponse :**  
 
+Après moultes tentatives sur deux machines différentes, nous n’avons pas réussi à passer à travers les règles de Snort à l’aide de cet outil.
+
+
+
+![](./images/img9.png)
+
+
+
+Nous avons essayé plusieurs possibilités, dont en voici un exemple:
+
+
+
+![](./images/img10.png)
+
+
+
+Nous avons parcouru bien entendu le man de fragrouter afin d’observer tous les paramètres ATTACK disponibles.
+
 ---
 
 
@@ -621,6 +645,20 @@ Modifier le fichier `myrules.rules` pour que snort utiliser le `Frag3 Preprocess
 ---
 
 **Reponse :**  
+
+Nous avons ajouté les lignes suivantes au fichier myrules.rules:
+
+![](./images/img12.png)
+
+
+
+On remarque que frag3 a été pris en compte correctement par snort, il n’y a pas le message habituel: *Warning: No processors configured for policy 0*.
+
+![](./images/img11.png)
+
+
+
+Compte tenu des circonstances, il n’y a donc aucun changement et snort affiche les alertes.
 
 ---
 
