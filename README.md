@@ -519,6 +519,8 @@ Lancer Wireshark et faire une capture du trafic sur l'interface connectée au br
 
 **Reponse :**  
 
+`snort -r` 
+
 ---
 
 Utiliser l'option correcte de Snort pour analyser le fichier de capture Wireshark.
@@ -529,6 +531,8 @@ Utiliser l'option correcte de Snort pour analyser le fichier de capture Wireshar
 
 **Reponse :**  
 
+Snort affiche tous les paquets mais n’appliquent pas les règles définies dans le fichier myrules.rules, cela revient à utiliser snort en mode sniffer `snort -v -i eth0`
+
 ---
 
 **Question 18: Est-ce que des alertes sont aussi enregistrées dans le fichier d'alertes?**
@@ -536,6 +540,8 @@ Utiliser l'option correcte de Snort pour analyser le fichier de capture Wireshar
 ---
 
 **Reponse :**  
+
+Non, les alertes ne sont pas enregistrées. 
 
 ---
 
@@ -551,6 +557,10 @@ Faire des recherches à propos des outils `fragroute` et `fragtest`.
 
 **Reponse :**  
 
+fragroute : Permet d’intercepter, modifier et réécrire le trafic réseau sortant destiné à un hôte. Pn peut l’utiliser pour passer à travers les règles définies par snort. 
+
+fragtest : Permet de tester un NIDS en envoyant des paquets par fragments afin de ne pas être détecté par les éventuels règles. 
+
 ---
 
 
@@ -560,6 +570,20 @@ Faire des recherches à propos des outils `fragroute` et `fragtest`.
 
 **Reponse :**  
 
+Effectue un test comportant les étapes suivantes : 
+
+ping : envoie un ICMP echo à la cible 
+
+ip-opt : envoie un ICMP echo à la cible avec différentes options pour voir celle supportées 
+
+frag : envoie un ICMP echo en fragment de 8 bytes 
+
+frag-new : envoie un ICMP echo en fragment de 8 bytes avec un chevauchement sur un fragment de 16 bytes, favorisant la nouvel data au ré-assemblage 
+
+frag-old : envoie un ICMP echo en fragment de 8 bytes avec un chevauchement sur un fragment de 16 bytes, favorisant l’ancienne data au ré-assemblage 
+
+frag-timeout : envoie un ICMP echo en fragment de 8 bytes en omettant le dernier fragment et attend in réponse de temps de ré-assemblage dépassé de la cible 
+
 ---
 
 
@@ -568,6 +592,10 @@ Faire des recherches à propos des outils `fragroute` et `fragtest`.
 ---
 
 **Reponse :**  
+
+C’est un module de défragmentation pour snort, il permet de détecter les tentatives d’évasion effectuée par des outils comme fragroute. 
+
+Le module frag3 fonctionne avec un modèle d’analyse “targed-based”, l’idée est de donner des information au module sur l’hôte afin d’éviter des attaques qui sont basée sur des informations de comment l’IDS réagit fasse à une IP précise. 
 
 ---
 
@@ -580,6 +608,8 @@ Reprendre l'exercice de la partie [Trouver votre nom](#trouver-votre-nom-). Essa
 ---
 
 **Reponse :**  
+
+
 
 ---
 
